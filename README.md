@@ -6,6 +6,8 @@ Esta es una API REST para la gestión de usuarios, desarrollada con Node.js y Ex
 
 La API está desplegada en Render y puedes acceder a ella a través de la siguiente URL:
 
+https://ht6-dw.onrender.com
+
 [ht6-api-users](https://ht6-dw.onrender.com)
 
 ## Ejecución en Local
