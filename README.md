@@ -14,7 +14,7 @@ Para ejecutar la API en tu entorno local, sigue estos pasos:
 
 1.  Clona el repositorio:
     ```bash
-    git clone <URL_DEL_REPOSITORIO>
+    git clone https://github.com/JoshuaMzV/HT6-DW
     ```
 2.  Navega a la carpeta del proyecto:
     ```bash
@@ -130,3 +130,9 @@ La API estará disponible en `http://localhost:3000`.
     *   No se devuelve contenido en el cuerpo de la respuesta.
 *   **Respuestas de Error:**
     *   `404 Not Found`: Si el usuario no existe.
+
+
+Joshua Iván André Méndez Vásquez
+9490-22-4032
+
+Universidad Mariano Galvez de Guatemala Sede "El Naranjo"
