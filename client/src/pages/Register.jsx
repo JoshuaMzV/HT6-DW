@@ -19,7 +19,16 @@ export default function Register() {
         body: JSON.stringify(form)
       })
 
-  const data = await res.json()
+      // Intentamos parsear JSON, si falla mostramos el texto crudo (p.ej. HTML 404)
+      let data
+      try {
+        data = await res.json()
+      } catch (parseErr) {
+        const text = await res.text()
+        console.error('Respuesta no-JSON del servidor:', text)
+        throw new Error(text || 'Respuesta inesperada del servidor')
+      }
+
       if (!res.ok) throw new Error(data.error || 'Error al registrar')
 
       // Redirect to login on success

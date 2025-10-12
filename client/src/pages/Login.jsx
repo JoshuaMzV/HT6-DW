@@ -21,7 +21,15 @@ export default function Login() {
         body: JSON.stringify(form)
       })
 
-      const data = await res.json()
+      let data
+      try {
+        data = await res.json()
+      } catch (parseErr) {
+        const text = await res.text()
+        console.error('Respuesta no-JSON del servidor:', text)
+        throw new Error(text || 'Respuesta inesperada del servidor')
+      }
+
       if (!res.ok) throw new Error(data.error || 'Error al iniciar sesión')
 
       // Guardar sesión en contexto
