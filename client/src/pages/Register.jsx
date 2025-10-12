@@ -12,13 +12,14 @@ export default function Register() {
     e.preventDefault()
     setError(null)
     try {
-      const res = await fetch('http://localhost:3000/register', {
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+  const res = await fetch(`${apiUrl}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
       })
 
-      const data = await res.json()
+  const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Error al registrar')
 
       // Redirect to login on success
