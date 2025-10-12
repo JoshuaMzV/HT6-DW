@@ -9,6 +9,21 @@ app.use(express.json());
 
 let users = [];
 
+// Helper to create user (returns created user without password)
+const createUser = ({ name, email, password, dpi }) => {
+  const newUser = {
+    id: users.length + 1,
+    name,
+    email,
+    password,
+    dpi
+  };
+  users.push(newUser);
+  const { password: pw, ...userWithoutPassword } = newUser;
+  return userWithoutPassword;
+};
+
+// Ruta antigua compatible para crear usuarios (/users)
 app.post('/users', (req, res) => {
   const { name, email, password, dpi } = req.body;
 
@@ -36,16 +51,40 @@ app.post('/users', (req, res) => {
     return res.status(409).json({ error: 'El email ya está registrado' });
   }
 
-  const newUser = {
-    id: users.length + 1,
-    name,
-    email,
-    password,
-    dpi
-  };
+  const user = createUser({ name, email, password, dpi });
+  res.status(201).json(user);
+});
 
-  users.push(newUser);
-  res.status(201).json(newUser);
+// Nueva ruta /register con misma lógica
+app.post('/register', (req, res) => {
+  const { name, email, password, dpi } = req.body;
+
+  if (!name || !email || !password || !dpi) {
+    return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+  }
+
+  if (!validateDPI(dpi)) {
+    return res.status(400).json({ error: 'El DPI debe tener exactamente 13 dígitos numéricos' });
+  }
+
+  if (!validateEmail(email)) {
+    return res.status(400).json({ error: 'El formato del email no es válido' });
+  }
+
+  if (!validatePassword(password)) {
+    return res.status(400).json({ error: 'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo' });
+  }
+
+  if (users.some(user => user.dpi === dpi)) {
+    return res.status(409).json({ error: 'El DPI ya está registrado' });
+  }
+
+  if (users.some(user => user.email === email)) {
+    return res.status(409).json({ error: 'El email ya está registrado' });
+  }
+
+  const user = createUser({ name, email, password, dpi });
+  res.status(201).json(user);
 });
 
 app.get('/users', (req, res) => {
@@ -113,6 +152,24 @@ app.delete('/users/:dpi', (req, res) => {
 
   users.splice(userIndex, 1);
   res.status(204).send();
+});
+
+// Ruta de login: valida email y password
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
+  }
+
+  const user = users.find(u => u.email === email && u.password === password);
+
+  if (!user) {
+    return res.status(401).json({ error: 'Credenciales inválidas' });
+  }
+
+  const { password: pw, ...userWithoutPassword } = user;
+  res.json(userWithoutPassword);
 });
 
 const PORT = process.env.PORT || 3000;

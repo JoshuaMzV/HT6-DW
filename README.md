@@ -33,11 +33,33 @@ Para ejecutar la API en tu entorno local, sigue estos pasos:
 
 La API estará disponible en `http://localhost:3000`.
 
+## Frontend (React)
+
+Se incluye una carpeta `client/` con una app creada con Vite + React que contiene las páginas de Registro y Login y usa Context para la sesión.
+
+Para ejecutar el frontend:
+
+1. Ir a la carpeta `client`:
+    ```powershell
+    cd client
+    ```
+2. Instalar dependencias:
+    ```powershell
+    npm install
+    ```
+3. Iniciar la aplicación en modo desarrollo:
+    ```powershell
+    npm run dev
+    ```
+
+La app de frontend por defecto asume que la API corre en `http://localhost:3000`.
+
 ## Endpoints de la API
 
 ### 1. Crear un Nuevo Usuario
 
 *   **Endpoint:** `POST /users`
+*   **Endpoint alternativo para formularios:** `POST /register` (misma lógica que `/users`)
 *   **Descripción:** Crea un nuevo usuario en el sistema.
 *   **Validaciones:**
     *   El DPI no debe estar registrado previamente.
@@ -59,9 +81,8 @@ La API estará disponible en `http://localhost:3000`.
     {
       "id": 1,
       "name": "Joshua Mendez",
-      "email": "joshua@example.com",
-      "password": "Password123!",
-      "dpi": "1234567890123"
+            "email": "joshua@example.com",
+            "dpi": "1234567890123"
     }
     ```
 *   **Respuestas de Error:**
@@ -114,7 +135,6 @@ La API estará disponible en `http://localhost:3000`.
       "id": 1,
       "name": "Joshua Mendez Actualizado",
       "email": "joshua.new@example.com",
-      "password": "Password123!",
       "dpi": "1234567890123"
     }
     ```
@@ -138,3 +158,20 @@ Joshua Iván André Méndez Vásquez
 9490-22-4032
 
 Universidad Mariano Galvez de Guatemala Sede "El Naranjo"
+
+## Autores / Entregantes
+
+- Joshua Iván André Méndez Vásquez - 9490-22-4032
+
+Si trabajas en un repositorio privado y necesitas añadir un colega, invita al usuario `ingVillatoroUMG`.
+
+## Rama para esta tarea
+
+Se sugiere crear una rama para implementar el frontend y ajustes: `feature/auth-react`.
+
+---
+Endpoints adicionales:
+
+- `POST /register` -> Registrar usuario (usado por el frontend)
+- `POST /login` -> Iniciar sesión (devuelve datos del usuario sin contraseña)
+
