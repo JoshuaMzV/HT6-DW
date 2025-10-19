@@ -1,6 +1,6 @@
-# API de Gestión de Usuarios
+# API de Gestión de Usuarios con JWT
 
-Esta es una API REST para la gestión de usuarios, desarrollada con Node.js y Express.
+API REST para gestión de usuarios desarrollada con Node.js y Express, con autenticación mediante JSON Web Tokens (JWT). Incluye un endpoint de login que genera un token válido por 30 segundos y middleware para proteger rutas.
 
 ## Despliegue
 
@@ -9,6 +9,18 @@ La API está desplegada en Render y puedes acceder a ella a través de la siguie
 https://ht6-dw.onrender.com
 
 [ht6-api-users](https://ht6-dw.onrender.com)
+
+## Variables de Entorno
+
+Crear un archivo `.env` dentro de `ht6-api-users/` con:
+
+```
+PORT=3000
+JWT_SECRET=supersecret_dev_key_change_me
+JWT_EXPIRES=30s
+```
+
+En Render, define estas variables en el Dashboard del servicio (Environment > Environment Variables).
 
 ## Ejecución en Local
 
@@ -34,6 +46,34 @@ Para ejecutar la API en tu entorno local, sigue estos pasos:
 La API estará disponible en `http://localhost:3000`.
 
 ## Endpoints de la API
+
+Todas las rutas de usuarios están protegidas con JWT. Primero debes iniciar sesión para obtener un token.
+
+### 0. Login (Obtener Token)
+
+*   **Endpoint:** `POST /login`
+*   **Descripción:** Autentica a un usuario existente y devuelve un token JWT válido por 30 segundos.
+*   **Solicitud (Body):**
+        ```json
+        {
+            "email": "joshua@example.com",
+            "password": "Password123!"
+        }
+        ```
+*   **Respuesta Exitosa (200 OK):**
+        ```json
+        {
+            "token": "<jwt>",
+            "expiresIn": "30s"
+        }
+        ```
+*   **Errores:** `400 Bad Request` si faltan campos; `401 Unauthorized` si credenciales inválidas.
+
+Usa el token en el header Authorization para las rutas protegidas:
+
+```
+Authorization: Bearer <jwt>
+```
 
 ### 1. Crear un Nuevo Usuario
 
@@ -70,7 +110,7 @@ La API estará disponible en `http://localhost:3000`.
 
 ### 2. Listar Todos los Usuarios
 
-*   **Endpoint:** `GET /users`
+*   **Endpoint:** `GET /users` (PROTEGIDO)
 *   **Descripción:** Retorna una lista de todos los usuarios registrados.
 *   **Parámetros de Consulta (Query Params):**
     *   `name` (opcional): Busca usuarios por nombre (parcial, insensible a mayúsculas).
@@ -96,7 +136,7 @@ La API estará disponible en `http://localhost:3000`.
 
 ### 3. Actualizar un Usuario
 
-*   **Endpoint:** `PUT /users/:dpi`
+*   **Endpoint:** `PUT /users/:dpi` (PROTEGIDO)
 *   **Descripción:** Actualiza la información de un usuario existente.
 *   **Validaciones:**
     *   El usuario con el DPI especificado debe existir.
@@ -124,7 +164,7 @@ La API estará disponible en `http://localhost:3000`.
 
 ### 4. Eliminar un Usuario
 
-*   **Endpoint:** `DELETE /users/:dpi`
+*   **Endpoint:** `DELETE /users/:dpi` (PROTEGIDO)
 *   **Descripción:** Elimina un usuario del sistema.
 *   **Validaciones:**
     *   El usuario con el DPI especificado debe existir.
@@ -138,3 +178,14 @@ Joshua Iván André Méndez Vásquez
 9490-22-4032
 
 Universidad Mariano Galvez de Guatemala Sede "El Naranjo"
+
+## Despliegue en Render
+
+1. Crea un nuevo Web Service apuntando a este repo y carpeta `ht6-api-users/`.
+2. Configuración:
+    - Runtime: Node
+    - Build Command: (vacío)
+    - Start Command: `node index.js`
+    - Root Directory: `ht6-api-users`
+    - Environment Variables: `PORT`, `JWT_SECRET`, `JWT_EXPIRES`
+3. Guarda y despliega. Copia la URL y colócala en la sección Despliegue arriba.

@@ -1,13 +1,52 @@
 // index.js
 import express from 'express';
 import cors from 'cors';
+import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 import { validateDPI, validateEmail, validatePassword } from './utils.js';
+
+// Cargar variables de entorno
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 let users = [];
+
+// Middleware para verificar JWT
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.startsWith('Bearer ')
+    ? authHeader.split(' ')[1]
+    : null;
+
+  if (!token) return res.status(401).json({ error: 'Token no proporcionado' });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Token inválido o expirado' });
+    req.user = user; // user contiene el payload del token
+    next();
+  });
+};
+
+// Endpoint de login para obtener JWT
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email y password son obligatorios' });
+  }
+
+  // Buscar usuario por email
+  const existingUser = users.find(u => u.email === email);
+  if (!existingUser || existingUser.password !== password) {
+    return res.status(401).json({ error: 'Credenciales inválidas' });
+  }
+
+  const payload = { id: existingUser.id, email: existingUser.email, dpi: existingUser.dpi };
+  const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES || '30s' });
+  res.json({ token, expiresIn: process.env.JWT_EXPIRES || '30s' });
+});
 
 app.post('/users', (req, res) => {
   const { name, email, password, dpi } = req.body;
@@ -48,7 +87,8 @@ app.post('/users', (req, res) => {
   res.status(201).json(newUser);
 });
 
-app.get('/users', (req, res) => {
+// Proteger: Listar usuarios
+app.get('/users', authenticateToken, (req, res) => {
   let filteredUsers = [...users];
 
   const { name, email, limit, offset } = req.query;
@@ -71,17 +111,26 @@ app.get('/users', (req, res) => {
   res.json(usersWithoutPassword);
 });
 
-app.put('/users/:dpi', (req, res) => {
-  const { dpi } = req.params;
+// Proteger: Actualizar usuario (acepta DPI de 13 dígitos o ID numérico)
+app.put('/users/:id', authenticateToken, (req, res) => {
+  const param = req.params.id;
   const { name, email, password } = req.body;
 
-  const userIndex = users.findIndex(user => user.dpi === dpi);
+  const isDPI = /^[0-9]{13}$/.test(param);
+  const isID = /^\d+$/.test(param);
+
+  let userIndex = -1;
+  if (isDPI) {
+    userIndex = users.findIndex(user => user.dpi === param);
+  } else if (isID) {
+    userIndex = users.findIndex(user => user.id === parseInt(param, 10));
+  }
 
   if (userIndex === -1) {
     return res.status(404).json({ error: 'Usuario no encontrado' });
   }
 
-  if (email && users.some(user => user.email === email && user.dpi !== dpi)) {
+  if (email && users.some(user => user.email === email && user.id !== users[userIndex].id)) {
     return res.status(409).json({ error: 'El email ya está en uso por otro usuario' });
   }
 
@@ -103,9 +152,18 @@ app.put('/users/:dpi', (req, res) => {
   res.json(users[userIndex]);
 });
 
-app.delete('/users/:dpi', (req, res) => {
-  const { dpi } = req.params;
-  const userIndex = users.findIndex(user => user.dpi === dpi);
+// Proteger: Eliminar usuario (acepta DPI de 13 dígitos o ID numérico)
+app.delete('/users/:id', authenticateToken, (req, res) => {
+  const param = req.params.id;
+  const isDPI = /^[0-9]{13}$/.test(param);
+  const isID = /^\d+$/.test(param);
+
+  let userIndex = -1;
+  if (isDPI) {
+    userIndex = users.findIndex(user => user.dpi === param);
+  } else if (isID) {
+    userIndex = users.findIndex(user => user.id === parseInt(param, 10));
+  }
 
   if (userIndex === -1) {
     return res.status(404).json({ error: 'Usuario no encontrado' });
