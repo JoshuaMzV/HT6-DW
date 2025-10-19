@@ -136,7 +136,7 @@ Authorization: Bearer <jwt>
 
 ### 3. Actualizar un Usuario
 
-*   **Endpoint:** `PUT /users/:dpi` (PROTEGIDO)
+*   **Endpoint:** `PUT /users/:id` (PROTEGIDO)
 *   **Descripción:** Actualiza la información de un usuario existente.
 *   **Validaciones:**
     *   El usuario con el DPI especificado debe existir.
@@ -164,7 +164,7 @@ Authorization: Bearer <jwt>
 
 ### 4. Eliminar un Usuario
 
-*   **Endpoint:** `DELETE /users/:dpi` (PROTEGIDO)
+*   **Endpoint:** `DELETE /users/:id` (PROTEGIDO)
 *   **Descripción:** Elimina un usuario del sistema.
 *   **Validaciones:**
     *   El usuario con el DPI especificado debe existir.
@@ -172,6 +172,8 @@ Authorization: Bearer <jwt>
     *   No se devuelve contenido en el cuerpo de la respuesta.
 *   **Respuestas de Error:**
     *   `404 Not Found`: Si el usuario no existe.
+
+Nota: En los endpoints `PUT` y `DELETE`, `:id` acepta el ID numérico del usuario o el DPI de 13 dígitos.
 
 
 Joshua Iván André Méndez Vásquez
