@@ -6,9 +6,9 @@ API REST para gestión de usuarios desarrollada con Node.js y Express, con auten
 
 La API está desplegada en Render y puedes acceder a ella a través de la siguiente URL:
 
-https://ht6-dw.onrender.com
+https://ht7-dw.onrender.com
 
-[ht6-api-users](https://ht6-dw.onrender.com)
+[[ht6-api-users](https://ht6-dw.onrender.com)](https://ht7-dw.onrender.com)
 
 ## Variables de Entorno
 
